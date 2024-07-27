@@ -1,5 +1,5 @@
 import streamlit as st
-from openai import OpenAI
+import utils
 
 # Show title and description.
 st.title("📄 AI Powered Research Expert")
@@ -13,29 +13,32 @@ st.write(
 # via `st.secrets`, see https://docs.streamlit.io/develop/concepts/connections/secrets-management
 
 # Ask the user for a question via `st.text_area`.
-question = st.text_area(
+query = st.text_area(
     "Enter your Research goal, topic or abstract!",
-    placeholder="Can you give me a short summary or abstract?",
-    disabled=not uploaded_file,
+    placeholder="Can you give me a short summary or abstract?"
 )
 
-if uploaded_file and question:
+if query and st.button("Lets go!"):
 
-    # Process the uploaded file and question.
-    document = uploaded_file.read().decode()
+    # Process the question to extract essential query.
+    cleaned_query = clean_query(query)
+
+    # relevant research papers, 
+     
+    # references
+    
+    # research recommendation, 
+    
+    document = ""
     messages = [
         {
             "role": "user",
-            "content": f"Here's a document: {document} \n\n---\n\n {question}",
+            "content": f"Here's a document: {document} \n\n---\n\n {query}",
         }
     ]
 
-    # Generate an answer using the OpenAI API.
-    stream = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=messages,
-        stream=True,
-    )
+    # Generate an answer using Groq API.
+    stream = ""
 
     # Stream the response to the app using `st.write_stream`.
     st.write_stream(stream)

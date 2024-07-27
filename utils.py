@@ -1,2 +1,2 @@
-def cleaned_query():
+def clean_query():
     pass

@@ -21,7 +21,7 @@ query = st.text_area(
 if query and st.button("Lets go!"):
 
     # Process the question to extract essential query.
-    cleaned_query = clean_query(query)
+    cleaned_query = utils.clean_query(query)
 
     # relevant research papers, 
      

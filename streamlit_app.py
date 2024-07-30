@@ -1,44 +1,74 @@
 import streamlit as st
-import utils
+import os
+from model import clean_query, get_relevant_research, summarize_papers, make_paper_recommendation
 
-# Show title and description.
+# Set the title and description of the app
 st.title("📄 AI Powered Research Expert")
 st.write(
-    "Upload a document below and ask a question about it – GPT will answer! "
-    "To use this app, you need to provide an OpenAI API key, which you can get [here](https://platform.openai.com/account/api-keys). "
+    "Enter your research goal, topic, or abstract below, and this app will provide research recommendations and relevant papers!"
 )
 
-# Ask user for their OpenAI API key via `st.text_input`.
-# Alternatively, you can store the API key in `./.streamlit/secrets.toml` and access it
-# via `st.secrets`, see https://docs.streamlit.io/develop/concepts/connections/secrets-management
+# Ask for OpenAI API key
+if "openai_api_key" not in st.session_state:
+    st.session_state["openai_api_key"] = ""
 
-# Ask the user for a question via `st.text_area`.
+def save_api_key():
+    st.session_state["openai_api_key"] = st.session_state["api_key_input"]
+
+st.text_input(
+    "Enter your OpenAI API key:",
+    type="password",
+    key="api_key_input",
+    on_change=save_api_key
+)
+
+# Ensure the API key is set
+if not st.session_state["openai_api_key"]:
+    st.warning("Please enter your OpenAI API key to proceed.")
+    st.stop()
+
+# Ask the user for a question
 query = st.text_area(
     "Enter your Research goal, topic or abstract!",
     placeholder="Can you give me a short summary or abstract?"
 )
 
-if query and st.button("Lets go!"):
+if query and st.button("Let's go!"):
+    openai_api_key = st.session_state["openai_api_key"]
 
-    # Process the question to extract essential query.
-    cleaned_query = utils.clean_query(query)
+    # Clean the query
+    cleaned_query = clean_query(query)
 
-    # relevant research papers, 
-     
-    # references
-    
-    # research recommendation, 
-    
-    document = ""
-    messages = [
-        {
-            "role": "user",
-            "content": f"Here's a document: {document} \n\n---\n\n {query}",
-        }
-    ]
+    # Get relevant research papers
+    relevant_papers, urls = get_relevant_research(cleaned_query)
 
-    # Generate an answer using Groq API.
-    stream = ""
+    # Summarize the papers
+    summaries = summarize_papers(relevant_papers, openai_api_key)
 
-    # Stream the response to the app using `st.write_stream`.
-    st.write_stream(stream)
+    # Make paper recommendation
+    recommendation = make_paper_recommendation(summaries, query, openai_api_key)
+
+    # Save session state
+    st.session_state['relevant_papers'] = relevant_papers
+    st.session_state['urls'] = urls
+    st.session_state['summaries'] = summaries
+    st.session_state['recommendation'] = recommendation
+
+# Display the research results
+if 'relevant_papers' in st.session_state:
+    relevant_papers = st.session_state['relevant_papers']
+    urls = st.session_state['urls']
+    summaries = st.session_state['summaries']
+    recommendation = st.session_state['recommendation']
+
+    # Create summaries and save to session state
+    tab1, tab2 = st.tabs(['Relevant Papers', 'Assistant Recommendation'])
+
+    with tab1:
+        for paper, summary, url in zip(relevant_papers, summaries, urls):
+            st.markdown(f'#### [{paper.title}]({url})')
+            with st.expander(f'Summary of {paper.title}'):
+                st.markdown(f'*{summary}*')
+
+    with tab2:
+        st.markdown(f'**{recommendation}**')

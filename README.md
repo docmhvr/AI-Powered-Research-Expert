@@ -2,7 +2,7 @@
 
 A simple Streamlit app that provides research recommendations and relevant papers based on an entered research goal, topic, or abstract. The app uses Open AI API for large language model inference.
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://your-streamlit-app-url)
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://research-ai.streamlit.app/)
 
 ### How to run it on your own machine
 1. Clone the repository.
